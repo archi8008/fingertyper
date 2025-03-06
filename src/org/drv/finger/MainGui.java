@@ -119,9 +119,9 @@ public class MainGui extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ScoreGUI.score();
-                infield.setText(""); // Очищаем поле ввода
+                infield.setText("");
                 if (timer != null) {
-                    timer.stop(); // Останавливаем таймер
+                    timer.stop();
                 }
             }
         });
@@ -139,10 +139,14 @@ public class MainGui extends JFrame {
                         }
                     });
                     timer.start();
-                } else if (infield.getText().length() == 0 || infield.getText().length() > outfield.getText().length()) {
-
+                } else if ( infield.getText().length() == outfield.getText().length()) {
+                    ScoreGUI.score();
+                    infield.setText("");
+                    timer.stop();
+                } else if (infield.getText().isEmpty()) {
                     timer.stop();
                 }
+
             }
 
             @Override
