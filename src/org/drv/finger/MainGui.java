@@ -1,6 +1,8 @@
 package org.drv.finger;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -52,24 +54,26 @@ public class MainGui extends JFrame {
         JButton startButton = new JButton("START");
         startButton.setBounds(750, 10, 100,20);
         startButton.setBackground(new Color(128,123,123));
-        startButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                inputTime = 0;
-                timer = new Timer(1000, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        inputTime++;
-                    }
-                });
-                timer.start();
-            }
-        });
+        //Replacement with a more conveineint solution AddDocumentListener (scroll down)
+//        startButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                inputTime = 0;
+//                timer = new Timer(1000, new ActionListener() {
+//                    @Override
+//                    public void actionPerformed(ActionEvent e) {
+//                        inputTime++;
+//                    }
+//                });
+//                timer.start();
+//            }
+//        });
 
         //End timer and Score Frame open
         JButton endButton = new JButton("END");
         endButton.setBounds(750, 40, 100,20);
         endButton.setBackground(new Color(100,71,71));
+
         // move to score menu
         endButton.addActionListener(new ActionListener() {
             @Override
@@ -81,15 +85,8 @@ public class MainGui extends JFrame {
             }
 
         });
-//        endButton.addKeyListener(new KeyAdapter() {
-//            @Override
-//            public void keyPressed(KeyEvent e) {
-//                if (e.getKeyCode() == KeyEvent.VK_END){
-//                    System.out.println("time is: " + inputTime);
-//                    timer.stop();
-//                }
-//            }
-//        });
+
+
 
         JButton accountButton = new JButton("Account");
         accountButton.setBounds(750, 70, 100,20);
@@ -111,6 +108,53 @@ public class MainGui extends JFrame {
         infield.setFont(new Font("Serif",Font.BOLD,20));
         infield.setLineWrap(true);
         infield.getDocument().addDocumentListener(new TextListener(outfield, infield));
+
+        //https://www.programcreek.com/java-api-examples/javax.swing.ActionMap
+        //Esc on keyboard emuliert button END
+        InputMap inputMap = infield.getInputMap(JComponent.WHEN_FOCUSED);
+        ActionMap actionMap = infield.getActionMap();
+
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "ecs");
+        actionMap.put("ecs", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ScoreGUI.score();
+                infield.setText(""); // Очищаем поле ввода
+                if (timer != null) {
+                    timer.stop(); // Останавливаем таймер
+                }
+            }
+        });
+
+        //if there is one symbol in infield, timer start
+        infield.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                if (infield.getText().length() == 1){
+                    inputTime = 0;
+                    timer = new Timer(1000, new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            inputTime++;
+                        }
+                    });
+                    timer.start();
+                } else if (infield.getText().length() == 0 || infield.getText().length() > outfield.getText().length()) {
+
+                    timer.stop();
+                }
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+
+            }
+        });
          //oracle.com   //
 
         // TRUE FALSE INPUT;
